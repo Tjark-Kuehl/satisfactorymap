@@ -39,42 +39,81 @@ const DEFAULT_DISPLAY_SIZE = 24;
 
 // Initialize application when DOM is ready
 document.addEventListener('DOMContentLoaded', async () => {
-    // First load the icon atlas
-    const atlasLoaded = await loadIconAtlas();
+    // Get the loading spinner overlay
+    const loadingSpinner = document.getElementById('map-loading');
     
-    if (!atlasLoaded) {
-        console.error('Failed to load icon atlas. Cannot continue.');
-        document.body.innerHTML = '<div style="padding: 2rem; text-align: center;"><h1>Error</h1><p>Failed to load icon atlas. Please check the console for more information.</p></div>';
-        return;
+    // Show loading spinner at start
+    if (loadingSpinner) {
+        loadingSpinner.classList.remove('hidden');
     }
     
-    // Initialize the map
-    map = initializeMap();
-    
-    // Load and display resources
-    loadResourceData();
-    
-    // Initialize the sidebar toggle
-    initSidebarToggle();
-    
-    // Initialize the Hide All Nodes button
-    initHideAllNodesButton();
-    
-    // Initialize debug panel toggle
-    const debugToggle = document.getElementById('icon-debug-toggle');
-    if (debugToggle) {
-        debugToggle.addEventListener('click', () => {
-            const debugPanel = document.getElementById('icon-debug');
-            if (debugPanel) {
-                if (debugPanel.style.display === 'none') {
-                    debugPanel.style.display = 'block';
-                    debugToggle.textContent = 'Hide Debug';
-                } else {
-                    debugPanel.style.display = 'none';
-                    debugToggle.textContent = 'Debug Icons';
-                }
+    try {
+        // First load the icon atlas
+        const atlasLoaded = await loadIconAtlas();
+        
+        if (!atlasLoaded) {
+            console.error('Failed to load icon atlas. Cannot continue.');
+            document.body.innerHTML = '<div style="padding: 2rem; text-align: center;"><h1>Error</h1><p>Failed to load icon atlas. Please check the console for more information.</p></div>';
+            return;
+        }
+        
+        // Preload the atlas image before showing icons
+        await preloadAtlasImage();
+        
+        // Fetch resource data (single fetch operation)
+        const response = await fetch('/public/data/resources.json');
+        if (!response.ok) {
+            throw new Error(`Failed to load resources: ${response.status}`);
+        }
+        
+        resourceData = await response.json();
+        
+        // Initialize the map (this can take time)
+        map = initializeMap();
+        
+        // Initialize UI elements immediately
+        initSidebarToggle();
+        initHideAllNodesButton();
+        
+        // Create sidebar first (quick operation)
+        // With preloaded atlas, icons should appear immediately
+        createSidebar(resourceData);
+        
+        // Process and place map markers in the background
+        // This is the heavy operation that takes time
+        setTimeout(() => {
+            processResources(resourceData);
+            
+            // Hide loading spinner after processing completes
+            if (loadingSpinner) {
+                loadingSpinner.classList.add('hidden');
             }
-        });
+        }, 10);
+        
+        // Initialize debug panel toggle
+        const debugToggle = document.getElementById('icon-debug-toggle');
+        if (debugToggle) {
+            debugToggle.addEventListener('click', () => {
+                const debugPanel = document.getElementById('icon-debug');
+                if (debugPanel) {
+                    if (debugPanel.style.display === 'none') {
+                        debugPanel.style.display = 'block';
+                        debugToggle.textContent = 'Hide Debug';
+                    } else {
+                        debugPanel.style.display = 'none';
+                        debugToggle.textContent = 'Debug Icons';
+                    }
+                }
+            });
+        }
+    } catch (error) {
+        console.error('Error initializing application:', error);
+        document.body.innerHTML = '<div style="padding: 2rem; text-align: center;"><h1>Error</h1><p>Failed to initialize the application. Please check the console for more information.</p></div>';
+        
+        // Hide loading spinner on error
+        if (loadingSpinner) {
+            loadingSpinner.classList.add('hidden');
+        }
     }
 });
 
@@ -126,33 +165,6 @@ async function loadIconAtlas() {
         console.error('⚠️ Error loading icon atlas:', error);
         appendDebugInfo(`Failed to load icon atlas: ${error.message}`, 'red');
         return false;
-    }
-}
-
-/**
- * Load resources directly from JSON
- */
-async function loadResourceData() {
-    try {
-        // Fetch resource data
-        const response = await fetch('/public/data/resources.json');
-        if (!response.ok) {
-            throw new Error(`Failed to load resources: ${response.status}`);
-        }
-        
-        resourceData = await response.json();
-        
-        // Create sidebar from resource data
-        createSidebar(resourceData);
-        
-        // Process and place resource markers
-        processResources(resourceData);
-    } catch (error) {
-        console.error('Error loading resources:', error);
-        const statusMessage = document.getElementById('coords');
-        if (statusMessage) {
-            statusMessage.textContent = 'Error loading resources';
-        }
     }
 }
 
@@ -715,4 +727,24 @@ function clearMarkerClusters() {
     
     // Reset clusters object
     markerClusters = {};
+}
+
+/**
+ * Preload the atlas image to ensure icons appear immediately
+ * @returns {Promise} - Resolves when the image is loaded
+ */
+function preloadAtlasImage() {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            // Image is now cached in the browser
+            resolve();
+        };
+        img.onerror = () => {
+            // Continue even if there's an error, we'll use fallbacks
+            console.error('Error preloading atlas image');
+            resolve();
+        };
+        img.src = ATLAS_IMAGE_URL;
+    });
 }
