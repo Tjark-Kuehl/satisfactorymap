@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resource Data Test</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 5px; overflow: auto; max-height: 400px; }
+        #log { background: #efefef; padding: 10px; margin-top: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Resource Data Test</h1>
+    <button id="load-btn">Load Resource Data</button>
+    <div id="status"></div>
+    <h2>Resource Structure:</h2>
+    <pre id="structure"></pre>
+    <h2>Log:</h2>
+    <div id="log"></div>
+
+    <script>
+        // Elements
+        const loadBtn = document.getElementById('load-btn');
+        const statusEl = document.getElementById('status');
+        const structureEl = document.getElementById('structure');
+        const logEl = document.getElementById('log');
+
+        // Log function
+        function log(message) {
+            const item = document.createElement('div');
+            item.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+            logEl.appendChild(item);
+            console.log(message);
+        }
+
+        // Load resources
+        loadBtn.addEventListener('click', async () => {
+            try {
+                log('Loading resource data...');
+                statusEl.textContent = 'Loading...';
+                
+                const response = await fetch('/public/data/resources.json');
+                log(`Response status: ${response.status}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                log('Resource data loaded successfully');
+                statusEl.textContent = 'Data loaded!';
+                
+                // Analyze structure
+                analyzeStructure(data);
+                
+                // Sample first few items
+                sampleData(data);
+            } catch (error) {
+                log(`Error: ${error.message}`);
+                statusEl.textContent = `Error: ${error.message}`;
+            }
+        });
+
+        // Analyze structure
+        function analyzeStructure(data) {
+            try {
+                log('Analyzing data structure...');
+                
+                // Check top level
+                if (!data || typeof data !== 'object') {
+                    log('Invalid data: not an object');
+                    return;
+                }
+                
+                // Check options array
+                if (!Array.isArray(data.options)) {
+                    log('Invalid data: options is not an array');
+                    return;
+                }
+                
+                log(`Found ${data.options.length} top-level categories`);
+                
+                // Build structure representation
+                let structure = {
+                    categories: []
+                };
+                
+                data.options.forEach((category, i) => {
+                    if (!category || !category.options || !Array.isArray(category.options)) {
+                        log(`Category ${i} has invalid structure`);
+                        return;
+                    }
+                    
+                    const categoryInfo = {
+                        name: category.name || `Category ${i}`,
+                        subcategories: []
+                    };
+                    
+                    log(`Category "${categoryInfo.name}" has ${category.options.length} subcategories`);
+                    
+                    category.options.forEach((subcategory, j) => {
+                        if (!subcategory || !subcategory.options || !Array.isArray(subcategory.options)) {
+                            log(`Subcategory ${j} in category ${i} has invalid structure`);
+                            return;
+                        }
+                        
+                        const subcategoryInfo = {
+                            name: subcategory.name || `Subcategory ${j}`,
+                            resourceTypes: []
+                        };
+                        
+                        log(`Subcategory "${subcategoryInfo.name}" has ${subcategory.options.length} resource types`);
+                        
+                        subcategory.options.forEach((resourceType, k) => {
+                            if (!resourceType) {
+                                log(`Resource type ${k} in subcategory ${j} in category ${i} is invalid`);
+                                return;
+                            }
+                            
+                            const resources = resourceType.resources || [];
+                            
+                            const resourceTypeInfo = {
+                                name: resourceType.name || `Resource Type ${k}`,
+                                id: resourceType.id || `resource_${k}`,
+                                resourceCount: resources.length
+                            };
+                            
+                            log(`Resource type "${resourceTypeInfo.name}" has ${resourceTypeInfo.resourceCount} resources`);
+                            
+                            subcategoryInfo.resourceTypes.push(resourceTypeInfo);
+                        });
+                        
+                        categoryInfo.subcategories.push(subcategoryInfo);
+                    });
+                    
+                    structure.categories.push(categoryInfo);
+                });
+                
+                // Display structure
+                structureEl.textContent = JSON.stringify(structure, null, 2);
+            } catch (error) {
+                log(`Error analyzing structure: ${error.message}`);
+            }
+        }
+
+        // Sample data
+        function sampleData(data) {
+            try {
+                log('Sampling resource data...');
+                
+                if (!data.options || !Array.isArray(data.options) || data.options.length === 0) {
+                    log('No data to sample');
+                    return;
+                }
+                
+                // Find first resource type with resources
+                let sampleResource = null;
+                
+                outerLoop:
+                for (const category of data.options) {
+                    if (!category.options) continue;
+                    
+                    for (const subcategory of category.options) {
+                        if (!subcategory.options) continue;
+                        
+                        for (const resourceType of subcategory.options) {
+                            if (resourceType.resources && resourceType.resources.length > 0) {
+                                sampleResource = {
+                                    type: resourceType.name,
+                                    sample: resourceType.resources[0]
+                                };
+                                break outerLoop;
+                            }
+                        }
+                    }
+                }
+                
+                if (sampleResource) {
+                    log(`Sample resource of type "${sampleResource.type}":`);
+                    log(JSON.stringify(sampleResource.sample, null, 2));
+                } else {
+                    log('No resources found in the data');
+                }
+            } catch (error) {
+                log(`Error sampling data: ${error.message}`);
+            }
+        }
+    </script>
+</body>
+</html>

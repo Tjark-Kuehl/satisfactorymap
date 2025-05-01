@@ -1,0 +1,128 @@
+{
+  "Limestone (Impure)": [
+    "limestone"
+  ],
+  "Limestone (Normal)": [
+    "limestone"
+  ],
+  "Limestone (Pure)": [
+    "limestone"
+  ],
+  "Iron Ore (Impure)": [
+    "iron"
+  ],
+  "Iron Ore (Normal)": [
+    "iron"
+  ],
+  "Iron Ore (Pure)": [
+    "iron"
+  ],
+  "Copper Ore (Impure)": [
+    "copper"
+  ],
+  "Copper Ore (Normal)": [
+    "copper"
+  ],
+  "Copper Ore (Pure)": [
+    "copper"
+  ],
+  "Caterium Ore (Normal)": [
+    "caterium"
+  ],
+  "Caterium Ore (Pure)": [
+    "caterium"
+  ],
+  "Coal (Impure)": [
+    "coal"
+  ],
+  "Coal (Normal)": [
+    "coal"
+  ],
+  "Coal (Pure)": [
+    "coal"
+  ],
+  "Crude Oil (Impure)": [
+    "oil"
+  ],
+  "Crude Oil (Normal)": [
+    "oil"
+  ],
+  "Crude Oil (Pure)": [
+    "oil"
+  ],
+  "Sulfur (Impure)": [
+    "sulfur"
+  ],
+  "Sulfur (Normal)": [
+    "sulfur"
+  ],
+  "Sulfur (Pure)": [
+    "sulfur"
+  ],
+  "Bauxite (Impure)": [
+    "bauxite"
+  ],
+  "Bauxite (Normal)": [
+    "bauxite"
+  ],
+  "Bauxite (Pure)": [
+    "bauxite"
+  ],
+  "Raw Quartz (Impure)": [
+    "quartz"
+  ],
+  "Raw Quartz (Normal)": [
+    "quartz"
+  ],
+  "Raw Quartz (Pure)": [
+    "quartz"
+  ],
+  "Uranium (Impure)": [
+    "uranium"
+  ],
+  "Uranium (Normal)": [
+    "uranium"
+  ],
+  "SAM (Impure)": [
+    "sam"
+  ],
+  "SAM (Normal)": [
+    "sam"
+  ],
+  "SAM (Pure)": [
+    "sam"
+  ],
+  "Nitrogen Gas (Impure)": [
+    "nitrogenGas"
+  ],
+  "Nitrogen Gas (Normal)": [
+    "nitrogenGas"
+  ],
+  "Nitrogen Gas (Pure)": [
+    "nitrogenGas"
+  ],
+  "Water (Impure)": [
+    "water"
+  ],
+  "Water (Normal)": [
+    "water"
+  ],
+  "Water (Pure)": [
+    "water"
+  ],
+  "Blue Power Slug": [
+    "green"
+  ],
+  "Yellow Power Slug": [
+    "yellow"
+  ],
+  "Purple Power Slug": [
+    "purple"
+  ],
+  "Mercer Sphere": [
+    "mercer"
+  ],
+  "Somersloop": [
+    "somersloop"
+  ]
+}

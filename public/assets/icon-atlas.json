@@ -1,0 +1,282 @@
+{
+  "atlasUrl": "/public/assets/icon-atlas.png",
+  "iconSize": 64,
+  "columns": 5,
+  "rows": 5,
+  "iconPositions": {
+    "harddrive256": {
+      "x": 0,
+      "y": 0
+    },
+    "bauxite256": {
+      "x": 1,
+      "y": 0
+    },
+    "berry256": {
+      "x": 2,
+      "y": 0
+    },
+    "cateriumore256": {
+      "x": 3,
+      "y": 0
+    },
+    "coalore256": {
+      "x": 4,
+      "y": 0
+    },
+    "nitricacid256": {
+      "x": 0,
+      "y": 1
+    },
+    "quartzcrystal256": {
+      "x": 1,
+      "y": 1
+    },
+    "uraniumore256": {
+      "x": 2,
+      "y": 1
+    },
+    "coppernew256": {
+      "x": 3,
+      "y": 1
+    },
+    "ironnew256": {
+      "x": 4,
+      "y": 1
+    },
+    "liquidoilpipe256": {
+      "x": 0,
+      "y": 2
+    },
+    "liquidwaterpipe256": {
+      "x": 1,
+      "y": 2
+    },
+    "mushroom256": {
+      "x": 2,
+      "y": 2
+    },
+    "nut256new": {
+      "x": 3,
+      "y": 2
+    },
+    "powersluggreen256": {
+      "x": 4,
+      "y": 2
+    },
+    "powerslugpurple256": {
+      "x": 0,
+      "y": 3
+    },
+    "powerslugyellow256": {
+      "x": 1,
+      "y": 3
+    },
+    "samore256": {
+      "x": 2,
+      "y": 3
+    },
+    "stone256": {
+      "x": 3,
+      "y": 3
+    },
+    "sulfur256": {
+      "x": 4,
+      "y": 3
+    },
+    "mercer256": {
+      "x": 0,
+      "y": 4
+    },
+    "somersloom256": {
+      "x": 1,
+      "y": 4
+    }
+  },
+  "resourceMapping": {
+    "harddrive": {
+      "x": 0,
+      "y": 0
+    },
+    "hard drive": {
+      "x": 0,
+      "y": 0
+    },
+    "bauxite": {
+      "x": 1,
+      "y": 0
+    },
+    "berry": {
+      "x": 2,
+      "y": 0
+    },
+    "sporeflower": {
+      "x": 2,
+      "y": 0
+    },
+    "paleberry": {
+      "x": 2,
+      "y": 0
+    },
+    "spore flowers": {
+      "x": 2,
+      "y": 0
+    },
+    "caterium": {
+      "x": 3,
+      "y": 0
+    },
+    "coal": {
+      "x": 4,
+      "y": 0
+    },
+    "nitrogengas": {
+      "x": 0,
+      "y": 1
+    },
+    "gaspillar": {
+      "x": 0,
+      "y": 1
+    },
+    "gas pillars": {
+      "x": 0,
+      "y": 1
+    },
+    "quartz": {
+      "x": 1,
+      "y": 1
+    },
+    "uranium": {
+      "x": 2,
+      "y": 1
+    },
+    "copper": {
+      "x": 3,
+      "y": 1
+    },
+    "copper ore (impure)": {
+      "x": 3,
+      "y": 1
+    },
+    "copper ore (normal)": {
+      "x": 3,
+      "y": 1
+    },
+    "copper ore (pure)": {
+      "x": 3,
+      "y": 1
+    },
+    "iron": {
+      "x": 4,
+      "y": 1
+    },
+    "iron ore (impure)": {
+      "x": 4,
+      "y": 1
+    },
+    "iron ore (normal)": {
+      "x": 4,
+      "y": 1
+    },
+    "iron ore (pure)": {
+      "x": 4,
+      "y": 1
+    },
+    "oil": {
+      "x": 0,
+      "y": 2
+    },
+    "crude oil (impure)": {
+      "x": 0,
+      "y": 2
+    },
+    "crude oil (normal)": {
+      "x": 0,
+      "y": 2
+    },
+    "crude oil (pure)": {
+      "x": 0,
+      "y": 2
+    },
+    "water": {
+      "x": 1,
+      "y": 2
+    },
+    "mushroom": {
+      "x": 2,
+      "y": 2
+    },
+    "bacon agaric": {
+      "x": 2,
+      "y": 2
+    },
+    "beryl": {
+      "x": 3,
+      "y": 2
+    },
+    "beryl nut": {
+      "x": 3,
+      "y": 2
+    },
+    "green": {
+      "x": 4,
+      "y": 2
+    },
+    "blue power slug": {
+      "x": 4,
+      "y": 2
+    },
+    "purple": {
+      "x": 0,
+      "y": 3
+    },
+    "purple power slug": {
+      "x": 0,
+      "y": 3
+    },
+    "yellow": {
+      "x": 1,
+      "y": 3
+    },
+    "yellow power slug": {
+      "x": 1,
+      "y": 3
+    },
+    "sam": {
+      "x": 2,
+      "y": 3
+    },
+    "limestone": {
+      "x": 3,
+      "y": 3
+    },
+    "limestone (impure)": {
+      "x": 3,
+      "y": 3
+    },
+    "limestone (normal)": {
+      "x": 3,
+      "y": 3
+    },
+    "limestone (pure)": {
+      "x": 3,
+      "y": 3
+    },
+    "sulfur": {
+      "x": 4,
+      "y": 3
+    },
+    "mercer": {
+      "x": 0,
+      "y": 4
+    },
+    "mercer sphere": {
+      "x": 0,
+      "y": 4
+    },
+    "somersloop": {
+      "x": 1,
+      "y": 4
+    }
+  }
+}
