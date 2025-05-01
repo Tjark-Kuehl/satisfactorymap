@@ -1,0 +1,33 @@
+/* Main application styles */
+body {
+    font-family: 'Open Sans', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #1e1e1e;
+    color: #fff;
+}
+
+/* Tooltip styles for markers */
+.leaflet-tooltip {
+    background-color: rgba(40, 40, 40, 0.9);
+    color: #fff;
+    border: 1px solid #ff9800;
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 14px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.leaflet-popup-content-wrapper {
+    background-color: rgba(40, 40, 40, 0.9);
+    color: #fff;
+    border-radius: 4px;
+}
+
+.leaflet-popup-tip {
+    background-color: rgba(40, 40, 40, 0.9);
+}
+
+.leaflet-popup-content strong {
+    color: #ff9800;
+}
