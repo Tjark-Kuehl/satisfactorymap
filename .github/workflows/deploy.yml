@@ -6,24 +6,18 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    uses: ./.github/workflows/reusable/build.yml
-    
-  deploy:
-    needs: build
+  build-and-deploy:
     runs-on: ubuntu-latest
-    if: ${{ needs.build.outputs.build-success == 'success' }}
     
     steps:
     - uses: actions/checkout@v3
     
-    - name: Download build artifacts
-      uses: actions/download-artifact@v3
-      with:
-        name: build-output
-        path: dist
+    - name: Build application
+      id: build
+      uses: ./.github/actions/build
       
     - name: Deploy to GitHub Pages
+      if: steps.build.outputs.build-status == 'success'
       uses: JamesIves/github-pages-deploy-action@v4
       with:
         folder: dist

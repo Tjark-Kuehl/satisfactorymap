@@ -8,4 +8,18 @@ on:
 
 jobs:
   build:
-    uses: ./.github/workflows/reusable/build.yml
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Build application
+      id: build
+      uses: ./.github/actions/build
+      
+    - name: Upload build artifacts
+      if: steps.build.outputs.build-status == 'success'
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-output
+        path: dist/

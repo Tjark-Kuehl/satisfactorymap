@@ -1,26 +1,18 @@
-name: Reusable Build Workflow
-
-on:
-  workflow_call:
-    outputs:
-      build-success:
-        description: "Whether the build was successful"
-        value: ${{ jobs.build-job.outputs.build-status }}
-
-jobs:
-  build-job:
-    runs-on: ubuntu-latest
-    outputs:
-      build-status: ${{ steps.build-step.outputs.status }}
-    
-    steps:
-    - uses: actions/checkout@v3
-    
+name: 'Build Satisfactory Map'
+description: 'Sets up Node.js, caches dependencies, and builds the application'
+outputs:
+  build-status:
+    description: 'Status of the build process'
+    value: ${{ steps.build-step.outputs.status }}
+runs:
+  using: "composite"
+  steps:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18'
         cache: 'npm'
+      shell: bash
         
     - name: Cache node modules
       uses: actions/cache@v3
@@ -31,19 +23,16 @@ jobs:
         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-
+      shell: bash
           
     - name: Install dependencies
       if: steps.npm-cache.outputs.cache-hit != 'true'
       run: npm ci
+      shell: bash
       
     - name: Build
       id: build-step
       run: |
         npm run build
         echo "status=success" >> $GITHUB_OUTPUT
-        
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: build-output
-        path: dist/
+      shell: bash
