@@ -7,6 +7,11 @@
   let sidebarCollapsed = false;
   let activeTab = 'resources';
   let searchQuery = '';
+  let collapsedCategories = {};
+  let collapsedSubCategories = {};
+  
+  // Import BASE_URL for asset references
+  const baseUrl = import.meta.env.BASE_URL;
   
   const dispatch = createEventDispatcher();
   
@@ -24,6 +29,16 @@
   function toggleResource(event, resourceId) {
     const checked = event.target.checked;
     dispatch('toggleResource', { resourceId, visible: checked });
+  }
+  
+  // Function to toggle category
+  function toggleCategory(categoryName) {
+    collapsedCategories[categoryName] = !collapsedCategories[categoryName];
+  }
+  
+  // Function to toggle sub-category
+  function toggleSubCategory(subCategoryName) {
+    collapsedSubCategories[subCategoryName] = !collapsedSubCategories[subCategoryName];
   }
   
   // Filter resources based on search query
@@ -51,49 +66,70 @@
       return iconAtlas.resourceMapping[resourceKey];
     }
     
-    // Additional lookups omitted for brevity
-    // (This is the same as in the Map component)
-    
-    // If all else fails, use a default position
-    return iconAtlas.resourceMapping['stone'] || { x: 0, y: 0 };
+    // Default to first position if no match
+    return { x: 0, y: 0 };
   }
 </script>
 
 <div class="sidebar" class:collapsed={sidebarCollapsed}>
   <div class="sidebar-header">
     <h1>Satisfactory Interactive Map</h1>
-    <div class="search-container">
-      <input type="text" id="search-input" placeholder="Search resources..." bind:value={searchQuery}>
-    </div>
+    
+    {#if activeTab === 'resources'}
+      <div class="search-container">
+        <input 
+          id="search-input" 
+          type="text" 
+          placeholder="Search resources..." 
+          bind:value={searchQuery}
+        >
+      </div>
+    {/if}
   </div>
   
-  <div class="tabs">
-    <div 
-      class="sidebar-tab" 
+  <div class="tabs" role="tablist">
+    <button 
+      class="tab" 
       class:active={activeTab === 'resources'} 
       on:click={() => setActiveTab('resources')}
+      aria-selected={activeTab === 'resources' ? 'true' : 'false'}
+      role="tab"
     >
       Resources
-    </div>
-    <div 
-      class="sidebar-tab" 
+    </button>
+    <button 
+      class="tab" 
       class:active={activeTab === 'info'} 
       on:click={() => setActiveTab('info')}
+      aria-selected={activeTab === 'info' ? 'true' : 'false'}
+      role="tab"
     >
       Info
-    </div>
+    </button>
   </div>
   
   <div class="tab-content" class:active={activeTab === 'resources'}>
     {#if resourceData && resourceData.options}
       {#each resourceData.options as category}
-        <div class="category-header">
+        <button 
+          class="category-header" 
+          on:click={() => toggleCategory(category.name)}
+          on:keydown={(e) => e.key === 'Enter' && toggleCategory(category.name)}
+          aria-expanded={!collapsedCategories[category.name]}
+        >
           {category.name || category.tabId || 'Unknown Category'}
-        </div>
+        </button>
         
-        {#each filteredResources(category) as subCategory}
-          <div class="subcategory">
-            <h3 class="subcategory-title">{subCategory.name}</h3>
+        {#each category.options as subCategory}
+          <div class="subcategory" class:collapsed={collapsedCategories[category.name]}>
+            <button 
+              class="subcategory-header" 
+              on:click={() => toggleSubCategory(subCategory.name)}
+              on:keydown={(e) => e.key === 'Enter' && toggleSubCategory(subCategory.name)}
+              aria-expanded={!collapsedSubCategories[subCategory.name]}
+            >
+              {subCategory.name}
+            </button>
             
             {#each subCategory.options as resourceType}
               {#if resourceType && resourceType.name}
@@ -102,21 +138,25 @@
                 {@const position = findIconPosition(resourceKey)}
                 
                 <div class="resource-item">
-                  <label class="resource-toggle-label">
+                  <label class="resource-label">
                     <input 
                       type="checkbox" 
                       class="resource-toggle" 
                       checked 
                       on:change={(e) => toggleResource(e, resourceId)}
                     >
-                    <div class="resource-icon">
+                    <div class="atlas-icon" style="
+                      width: 24px;
+                      height: 24px;
+                      overflow: hidden;
+                    ">
                       {#if position}
                         <div class="atlas-icon-inner" style="
                           width: {iconAtlas.iconSize}px;
                           height: {iconAtlas.iconSize}px;
                           transform: scale(0.375);
                           transform-origin: top left;
-                          background-image: url(${import.meta.env.BASE_URL}assets/icon-atlas.png);
+                          background-image: url({baseUrl}assets/icon-atlas.png);
                           background-position: {-position.x * iconAtlas.iconSize}px {-position.y * iconAtlas.iconSize}px;
                           background-size: {iconAtlas.columns * iconAtlas.iconSize}px {iconAtlas.rows * iconAtlas.iconSize}px;
                           background-repeat: no-repeat;
@@ -191,18 +231,25 @@
   .tabs {
     display: flex;
     border-bottom: 1px solid #555;
+    margin-bottom: 10px;
   }
   
-  .sidebar-tab {
+  .tab {
     flex: 1;
     padding: 10px 5px;
     text-align: center;
     cursor: pointer;
     border-bottom: 3px solid transparent;
+    background: none;
+    color: white;
+    border-top: none;
+    border-left: none;
+    border-right: none;
   }
   
-  .sidebar-tab.active {
+  .tab.active {
     border-bottom-color: #ff9e44;
+    color: #ff9e44;
   }
   
   .tab-content {
@@ -221,36 +268,51 @@
     padding: 5px 10px;
     margin: 10px -15px;
     font-weight: bold;
+    cursor: pointer;
+    border: none;
+    width: 100%;
+    text-align: left;
+    color: white;
   }
   
   .subcategory {
     margin-bottom: 15px;
+    padding-left: 10px;
   }
   
-  .subcategory-title {
+  .subcategory.collapsed {
+    display: none;
+  }
+  
+  .subcategory-header {
+    color: #ff9e44;
     font-size: 16px;
     margin-bottom: 8px;
-    color: #ff9e44;
+    padding: 2px 0;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
   }
   
   .resource-item {
-    padding: 5px 0;
+    padding: 2px 0;
     font-size: 14px;
+    display: flex;
+    align-items: center;
   }
   
-  .resource-toggle-label {
+  .atlas-icon {
+    margin-right: 10px;
+    position: relative;
+  }
+  
+  .resource-label {
     display: flex;
     align-items: center;
     gap: 5px;
     cursor: pointer;
-  }
-  
-  .resource-icon {
-    width: 24px;
-    height: 24px;
-    position: relative;
-    overflow: hidden;
-    display: inline-block;
   }
   
   .toggle-sidebar-button {

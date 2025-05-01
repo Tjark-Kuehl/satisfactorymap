@@ -5,7 +5,6 @@
   import MapSpinner from './components/MapSpinner.svelte';
   import CoordinatesDisplay from './components/CoordinatesDisplay.svelte';
   import ToggleAllNodes from './components/ToggleAllNodes.svelte';
-  import DebugPanel from './components/DebugPanel.svelte';
   
   // Global state
   let resourceData = null;
@@ -127,12 +126,6 @@
   </div>
   
   <button id="toggle-sidebar">≡</button>
-  
-  <DebugPanel 
-    entries={debugInfo} 
-    visible={debugVisible} 
-    on:toggle={toggleDebugPanel} 
-  />
 </div>
 
 <style>
