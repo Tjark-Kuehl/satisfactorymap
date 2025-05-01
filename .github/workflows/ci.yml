@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ main ]
 
+# Required for artifact upload
+permissions:
+  contents: read
+  actions: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
