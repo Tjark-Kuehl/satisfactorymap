@@ -12,7 +12,6 @@ runs:
       with:
         node-version: '18'
         cache: 'npm'
-      shell: bash
         
     - name: Cache node modules
       uses: actions/cache@v4
@@ -23,7 +22,6 @@ runs:
         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-
-      shell: bash
           
     - name: Install dependencies
       if: steps.npm-cache.outputs.cache-hit != 'true'
@@ -32,7 +30,5 @@ runs:
       
     - name: Build
       id: build-step
-      run: |
-        npm run build
-        echo "status=success" >> $GITHUB_OUTPUT
+      run: npm run build && echo "status=success" >> $GITHUB_OUTPUT
       shell: bash
