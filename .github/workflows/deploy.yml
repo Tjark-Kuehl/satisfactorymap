@@ -11,6 +11,11 @@ permissions:
   pages: write
   id-token: write
 
+# Concurrency settings to handle multiple deployments properly
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest

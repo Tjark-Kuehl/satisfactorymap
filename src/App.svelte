@@ -23,7 +23,7 @@
   onMount(async () => {
     try {
       // Load the icon atlas first
-      const atlasResponse = await fetch('/assets/icon-atlas.json');
+      const atlasResponse = await fetch(import.meta.env.BASE_URL + 'assets/icon-atlas.json');
       if (!atlasResponse.ok) {
         throw new Error(`Failed to load icon atlas: ${atlasResponse.status}`);
       }
@@ -33,7 +33,7 @@
       await preloadAtlasImage();
       
       // Then load the resource data
-      const resourceResponse = await fetch('/data/resources.json');
+      const resourceResponse = await fetch(import.meta.env.BASE_URL + 'data/resources.json');
       if (!resourceResponse.ok) {
         throw new Error(`Failed to load resources: ${resourceResponse.status}`);
       }
@@ -60,7 +60,7 @@
         console.error('Error preloading atlas image');
         resolve();
       };
-      img.src = '/assets/icon-atlas.png';
+      img.src = import.meta.env.BASE_URL + 'assets/icon-atlas.png';
     });
   }
   

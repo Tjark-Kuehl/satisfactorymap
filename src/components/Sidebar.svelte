@@ -116,7 +116,7 @@
                           height: {iconAtlas.iconSize}px;
                           transform: scale(0.375);
                           transform-origin: top left;
-                          background-image: url('/assets/icon-atlas.png');
+                          background-image: url(${import.meta.env.BASE_URL}assets/icon-atlas.png);
                           background-position: {-position.x * iconAtlas.iconSize}px {-position.y * iconAtlas.iconSize}px;
                           background-size: {iconAtlas.columns * iconAtlas.iconSize}px {iconAtlas.rows * iconAtlas.iconSize}px;
                           background-repeat: no-repeat;

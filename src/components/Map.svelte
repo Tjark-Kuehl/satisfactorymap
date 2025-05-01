@@ -51,7 +51,7 @@
     ];
     
     // Add the Satisfactory map image as a layer
-    const mapImage = L.imageOverlay('/assets/Map.webp', bounds);
+    const mapImage = L.imageOverlay(import.meta.env.BASE_URL + 'assets/Map.webp', bounds);
     mapImage.addTo(map);
     
     // Set initial view to center of map
@@ -185,7 +185,7 @@
       <div class="atlas-icon-container" style="
         width: ${atlasIconSize}px; 
         height: ${atlasIconSize}px; 
-        background-image: url('/assets/icon-atlas.png');
+        background-image: url('${import.meta.env.BASE_URL}assets/icon-atlas.png');
         background-position: ${-position.x * atlasIconSize}px ${-position.y * atlasIconSize}px;
         background-size: ${iconAtlas.columns * atlasIconSize}px ${iconAtlas.rows * atlasIconSize}px;
       "></div>
