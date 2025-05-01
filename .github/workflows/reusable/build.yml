@@ -1,0 +1,49 @@
+name: Reusable Build Workflow
+
+on:
+  workflow_call:
+    outputs:
+      build-success:
+        description: "Whether the build was successful"
+        value: ${{ jobs.build-job.outputs.build-status }}
+
+jobs:
+  build-job:
+    runs-on: ubuntu-latest
+    outputs:
+      build-status: ${{ steps.build-step.outputs.status }}
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Cache node modules
+      uses: actions/cache@v3
+      id: npm-cache
+      with:
+        path: |
+          **/node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+          
+    - name: Install dependencies
+      if: steps.npm-cache.outputs.cache-hit != 'true'
+      run: npm ci
+      
+    - name: Build
+      id: build-step
+      run: |
+        npm run build
+        echo "status=success" >> $GITHUB_OUTPUT
+        
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: build-output
+        path: dist/

@@ -1,49 +1,106 @@
-# Satisfactory Interactive Map
+# Satisfactory Interactive Map (Svelte)
 
-An interactive web-based map for the game Satisfactory that allows players to locate and filter resources.
+An interactive map for the game Satisfactory, allowing players to locate resources and plan their factory layouts. This version is built with Svelte for improved performance and a smaller codebase.
 
 ## Features
 
-- Interactive map with zoom and pan functionality
-- Resource markers with filtering capabilities
-- Resource node information on click
-- Toggle visibility of all nodes with a single button
-- High-quality icons for all resource types
-- Custom zoom levels from -30 to +2
-- Game-like coordinate system
-- Biome detection
+- Interactive map showing all resource nodes from Satisfactory
+- Optimized icon atlas loading to reduce HTTP requests
+- Responsive UI with a collapsible sidebar
+- Search functionality for quickly finding specific resources
+- Toggle visibility of resource types
+- Coordinates display for in-game reference
 
-## Project Structure
+## Getting Started
 
-```
-InteractiveMap/
-├── js/
-│   └── map.js                # Main JavaScript for map functionality
-├── public/
-│   ├── assets/
-│   │   ├── Map.webp          # Map image
-│   │   └── icons/            # Resource icons
-│   ├── data/
-│   │   └── resources.json    # Resource data
-│   ├── favicon.ico
-│   └── robots.txt
-├── index.html                # Main HTML file
-├── package.json              # Project dependencies
-├── package-lock.json
-├── server.js                 # Main server file
-└── README.md                 # This file
+### Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
 ```
 
-## Usage
+The development server will start at http://localhost:5173
 
-1. Install dependencies:
-   ```
-   npm install
-   ```
+### Production Build
 
-2. Start the server:
-   ```
-   npm start
-   ```
+```bash
+# Build for production
+npm run build
+# OR
+./build.sh
+```
 
-3. Open your browser and navigate to http://localhost:3002
+The production files will be output to the `/dist` directory.
+
+## Implementation Details
+
+The app is structured with the following components:
+
+- **App.svelte**: Main application component and state manager
+- **Map.svelte**: Leaflet map implementation with node placement
+- **Sidebar.svelte**: Filterable resource sidebar with atlas-based icons
+- **MapSpinner.svelte**: Loading indicator for the map
+- **CoordinatesDisplay.svelte**: Shows cursor position on the map
+- **ToggleAllNodes.svelte**: Button to show/hide all nodes at once
+- **DebugPanel.svelte**: Optional debugging panel for troubleshooting
+
+## Performance Optimizations
+
+- Icon atlas is preloaded before UI rendering begins
+- Map markers are processed asynchronously after UI is ready
+- Sidebar is rendered immediately for fast user interaction
+- Resource visibility toggling uses CSS rather than DOM manipulation
+
+## Technical Advantages of Svelte
+
+- **Smaller Bundle Size**: Svelte compiles components to highly efficient vanilla JavaScript
+- **Reactive UI**: Built-in reactivity with no virtual DOM overhead
+- **No Runtime Library**: Unlike React or Vue, Svelte has virtually no runtime
+- **Simplified State Management**: State is handled simply without complex libraries
+
+## Directory Structure
+
+```
+/public          - Static assets (map images, icon atlas, data files)
+/scripts         - Utility scripts for development
+  atlas-generator.js - Creates the icon atlas from individual icons
+  node-type-mapping.json - Resource type mappings
+/src             - Source code
+  /components    - Svelte components
+  App.svelte     - Main application component
+  app.css        - Global styles
+  main.js        - Application entry point
+/.github         - GitHub workflows for CI/CD
+```
+
+## Development Scripts
+
+```bash
+# Run the development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Generate the icon atlas (if icons are modified)
+npm run generate-atlas
+
+# Preview the production build
+npm run preview
+```
+
+## Continuous Integration & Deployment
+
+The project uses GitHub Actions for continuous integration and deployment:
+
+- **CI Workflow**: Automatically builds and tests the application on push or pull request
+- **Deploy Workflow**: Automatically deploys to GitHub Pages when changes are pushed to the main branch
+
+Both workflows include optimized npm caching to significantly speed up build times:
+- Caches node_modules directory between runs
+- Implements conditional dependency installation based on cache hits
+- Uses different cache keys based on package-lock.json to ensure cache freshness

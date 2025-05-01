@@ -1,27 +1,21 @@
 {
-  "name": "satisfactory-interactive-map",
+  "name": "satisfactory-interactive-map-svelte",
   "private": true,
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
     "dev": "vite",
-    "build": "node build.js",
-    "preview": "vite preview"
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "vite",
+    "generate-atlas": "node scripts/atlas-generator.js"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^2.4.2",
+    "svelte": "^4.2.7",
+    "vite": "^4.4.5"
   },
   "dependencies": {
-    "canvas": "^3.1.0",
-    "express": "^4.18.2",
-    "leaflet": "^1.9.4",
-    "leaflet.markercluster": "^1.5.3"
-  },
-  "version": "1.0.0",
-  "description": "An interactive web-based map for the game Satisfactory that allows players to locate and filter resources.",
-  "main": "server.js",
-  "devDependencies": {
-    "esbuild": "^0.25.3",
-    "vite": "^5.0.0"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+    "leaflet": "^1.9.4"
+  }
 }
