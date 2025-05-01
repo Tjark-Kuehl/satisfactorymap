@@ -5,6 +5,7 @@
   import MapSpinner from './components/MapSpinner.svelte';
   import CoordinatesDisplay from './components/CoordinatesDisplay.svelte';
   import ToggleAllNodes from './components/ToggleAllNodes.svelte';
+  import SidebarToggle from './components/SidebarToggle.svelte';
   
   // Global state
   let resourceData = null;
@@ -15,9 +16,12 @@
   let isLoading = true;
   let debugInfo = [];
   let debugVisible = false;
+  let sidebarCollapsed = false;
+  let visibleResources = {};
   
   // References for components
   let mapComponent;
+  let sidebarComponent;
   
   onMount(async () => {
     try {
@@ -95,6 +99,17 @@
   function toggleDebugPanel() {
     debugVisible = !debugVisible;
   }
+  
+  /**
+   * Toggle sidebar visibility
+   */
+  function toggleSidebar() {
+    sidebarCollapsed = !sidebarCollapsed;
+  }
+  
+  function handleToggleResource({ detail }) {
+    toggleResourceVisibility(detail.resourceId, detail.visible);
+  }
 </script>
 
 <svelte:head>
@@ -103,11 +118,15 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </svelte:head>
 
-<div id="app">
+<div id="app" class:sidebar-collapsed={sidebarCollapsed}>
   <Sidebar 
-    {resourceData} 
-    {iconAtlas} 
-    on:toggleResource={({ detail }) => toggleResourceVisibility(detail.resourceId, detail.visible)} 
+    bind:this={sidebarComponent}
+    {resourceData}
+    {iconAtlas}
+    {visibleResources}
+    toggleResourceVisibility={handleToggleResource}
+    collapsed={sidebarCollapsed}
+    on:toggle={toggleSidebar}
   />
   
   <div id="map-container">
@@ -123,9 +142,8 @@
     <MapSpinner visible={isLoading} />
     <CoordinatesDisplay />
     <ToggleAllNodes visible={allNodesVisible} on:toggle={toggleAllNodes} />
+    <SidebarToggle on:toggle={toggleSidebar} />
   </div>
-  
-  <button id="toggle-sidebar">≡</button>
 </div>
 
 <style>
@@ -151,21 +169,5 @@
     height: 100%;
     z-index: 1;
     position: relative;
-  }
-  
-  #toggle-sidebar {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 1000;
-    background: white;
-    border: 1px solid #ccc;
-    width: 30px;
-    height: 30px;
-    text-align: center;
-    line-height: 30px;
-    cursor: pointer;
-    border-radius: 3px;
-    font-weight: bold;
   }
 </style>

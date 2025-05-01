@@ -29,7 +29,7 @@
 <style>
   #toggle-all-nodes {
     position: absolute;
-    bottom: 40px;
+    bottom: 90px;
     left: 10px;
     background: #ff9e44;
     color: #222;

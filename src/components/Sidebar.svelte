@@ -1,10 +1,16 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   
-  export let resourceData;
-  export let iconAtlas;
+  const dispatch = createEventDispatcher();
   
-  let sidebarCollapsed = false;
+  // Component props
+  export let resourceData = { options: [] };
+  export let iconAtlas = { columns: 1, rows: 1, iconSize: 64, resourceMapping: {} };
+  export let visibleResources = {};
+  export let toggleResourceVisibility;
+  export let collapsed = false;
+  
+  // Local state
   let activeTab = 'resources';
   let searchQuery = '';
   let collapsedCategories = {};
@@ -13,22 +19,15 @@
   // Import BASE_URL for asset references
   const baseUrl = import.meta.env.BASE_URL;
   
-  const dispatch = createEventDispatcher();
-  
-  // Function to toggle sidebar visibility
-  function toggleSidebar() {
-    sidebarCollapsed = !sidebarCollapsed;
+  // Function to toggle resource visibility
+  function toggleResource(e, resourceId) {
+    const checked = e.target.checked;
+    toggleResourceVisibility(resourceId, checked);
   }
   
   // Function to set the active tab
-  function setActiveTab(tabId) {
-    activeTab = tabId;
-  }
-  
-  // Function to toggle resource visibility
-  function toggleResource(event, resourceId) {
-    const checked = event.target.checked;
-    dispatch('toggleResource', { resourceId, visible: checked });
+  function setActiveTab(tab) {
+    activeTab = tab;
   }
   
   // Function to toggle category
@@ -44,16 +43,15 @@
   // Filter resources based on search query
   $: filteredResources = (category) => {
     if (!category || !category.options) return [];
+    if (!searchQuery) return category.options;
     
     return category.options.filter(subCategory => {
-      if (!subCategory || !subCategory.options) return false;
+      if (subCategory.name.toLowerCase().includes(searchQuery.toLowerCase())) return true;
       
-      // Check if any option matches the search query
-      return subCategory.options.some(resourceType => {
-        if (!resourceType || !resourceType.name) return false;
-        
-        return resourceType.name.toLowerCase().includes(searchQuery.toLowerCase());
-      });
+      // Also check nested resource types
+      return subCategory.options.some(resource => 
+        resource.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
     });
   };
   
@@ -71,7 +69,7 @@
   }
 </script>
 
-<div class="sidebar" class:collapsed={sidebarCollapsed}>
+<div class="sidebar" class:collapsed={collapsed}>
   <div class="sidebar-header">
     <h1>Satisfactory Interactive Map</h1>
     
@@ -142,7 +140,7 @@
                     <input 
                       type="checkbox" 
                       class="resource-toggle" 
-                      checked 
+                      checked={visibleResources[resourceId]}
                       on:change={(e) => toggleResource(e, resourceId)}
                     >
                     <div class="atlas-icon" style="
@@ -184,10 +182,6 @@
     <p>This is an interactive map for Satisfactory, showing resource nodes and other points of interest.</p>
     <p>Built with Svelte for improved performance and reduced bundle size.</p>
   </div>
-  
-  <button class="toggle-sidebar-button" on:click={toggleSidebar}>
-    {sidebarCollapsed ? '»' : '«'}
-  </button>
 </div>
 
 <style>
@@ -312,17 +306,6 @@
     display: flex;
     align-items: center;
     gap: 5px;
-    cursor: pointer;
-  }
-  
-  .toggle-sidebar-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: transparent;
-    border: none;
-    color: white;
-    font-size: 16px;
     cursor: pointer;
   }
 </style>
