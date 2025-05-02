@@ -1,14 +1,19 @@
 <script>
   import { createEventDispatcher } from 'svelte';
+  import ResourceNode from './ResourceNode.svelte';
+  import { findIconPosition } from '../lib/iconUtils';
   
   const dispatch = createEventDispatcher();
   
   // Component props
-  export let resourceData = { options: [] };
-  export let iconAtlas = { columns: 1, rows: 1, iconSize: 64, resourceMapping: {} };
+  export let resourceData = { categories: [] };
   export let visibleResources = {};
   export let toggleResourceVisibility;
   export let collapsed = false;
+  export let iconAtlas = null; // Accept iconAtlas as a prop from parent
+  
+  // Import BASE_URL for asset references
+  const baseUrl = import.meta.env.BASE_URL;
   
   // Local state
   let activeTab = 'resources';
@@ -16,12 +21,8 @@
   let collapsedCategories = {};
   let collapsedSubCategories = {};
   
-  // Import BASE_URL for asset references
-  const baseUrl = import.meta.env.BASE_URL;
-  
   // Function to toggle resource visibility
-  function toggleResource(e, resourceId) {
-    const checked = e.target.checked;
+  function toggleResource(resourceId, checked) {
     toggleResourceVisibility(resourceId, checked);
   }
   
@@ -42,31 +43,18 @@
   
   // Filter resources based on search query
   $: filteredResources = (category) => {
-    if (!category || !category.options) return [];
-    if (!searchQuery) return category.options;
+    if (!category || !category.subcategories) return [];
+    if (!searchQuery) return category.subcategories;
     
-    return category.options.filter(subCategory => {
+    return category.subcategories.filter(subCategory => {
       if (subCategory.name.toLowerCase().includes(searchQuery.toLowerCase())) return true;
       
       // Also check nested resource types
-      return subCategory.options.some(resource => 
+      return subCategory.resources.some(resource => 
         resource.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     });
   };
-  
-  // Function to find the position of an icon in the atlas
-  function findIconPosition(resourceKey) {
-    if (!iconAtlas || !resourceKey) return null;
-    
-    // Try direct match in resourceMapping
-    if (iconAtlas.resourceMapping && iconAtlas.resourceMapping[resourceKey]) {
-      return iconAtlas.resourceMapping[resourceKey];
-    }
-    
-    // Default to first position if no match
-    return { x: 0, y: 0 };
-  }
 </script>
 
 <div class="sidebar" class:collapsed={collapsed}>
@@ -107,67 +95,99 @@
   </div>
   
   <div class="tab-content" class:active={activeTab === 'resources'}>
-    {#if resourceData && resourceData.options}
-      {#each resourceData.options as category}
+    {#if resourceData && resourceData.categories}
+      {#each resourceData.categories.filter(c => c && c.name && !c.name.toLowerCase().includes('unknown')) as category}
         <button 
           class="category-header" 
           on:click={() => toggleCategory(category.name)}
           on:keydown={(e) => e.key === 'Enter' && toggleCategory(category.name)}
           aria-expanded={!collapsedCategories[category.name]}
         >
-          {category.name || category.tabId || 'Unknown Category'}
+          {category.name}
         </button>
         
-        {#each category.options as subCategory}
+        {#each category.subcategories.filter(sc => sc && sc.name && !sc.name.toLowerCase().includes('unknown')) as subcategory}
           <div class="subcategory" class:collapsed={collapsedCategories[category.name]}>
             <button 
               class="subcategory-header" 
-              on:click={() => toggleSubCategory(subCategory.name)}
-              on:keydown={(e) => e.key === 'Enter' && toggleSubCategory(subCategory.name)}
-              aria-expanded={!collapsedSubCategories[subCategory.name]}
+              on:click={() => toggleSubCategory(subcategory.name)}
+              on:keydown={(e) => e.key === 'Enter' && toggleSubCategory(subcategory.name)}
+              aria-expanded={!collapsedSubCategories[subcategory.name]}
             >
-              {subCategory.name}
+              {subcategory.name}
             </button>
             
-            {#each subCategory.options as resourceType}
-              {#if resourceType && resourceType.name}
-                {@const resourceId = resourceType.layerId || resourceType.name.toLowerCase().replace(/\s+/g, '_')}
-                {@const resourceKey = resourceType.name.toLowerCase()}
-                {@const position = findIconPosition(resourceKey)}
-                
-                <div class="resource-item">
-                  <label class="resource-label">
-                    <input 
-                      type="checkbox" 
-                      class="resource-toggle" 
-                      checked={visibleResources[resourceId]}
-                      on:change={(e) => toggleResource(e, resourceId)}
-                    >
-                    <div class="atlas-icon" style="
-                      width: 24px;
-                      height: 24px;
-                      overflow: hidden;
-                    ">
+            {#each subcategory.resources.filter(rt => rt && rt.name && !rt.name.toLowerCase().includes('unknown')) as resource}
+              {#if resource.name}
+                <div 
+                  class="resource-item" 
+                  class:collapsed={collapsedSubCategories[subcategory.name]}
+                >
+                  {#if iconAtlas}
+                    {#each [findIconPosition(resource.name)] as position}
                       {#if position}
-                        <div class="atlas-icon-inner" style="
-                          width: {iconAtlas.iconSize}px;
-                          height: {iconAtlas.iconSize}px;
-                          transform: scale(0.375);
-                          transform-origin: top left;
-                          background-image: url({baseUrl}assets/icon-atlas.png);
-                          background-position: {-position.x * iconAtlas.iconSize}px {-position.y * iconAtlas.iconSize}px;
-                          background-size: {iconAtlas.columns * iconAtlas.iconSize}px {iconAtlas.rows * iconAtlas.iconSize}px;
-                          background-repeat: no-repeat;
-                        "></div>
+                        <label class="resource-label">
+                          <input 
+                            type="checkbox" 
+                            checked={visibleResources[resource.id] || false}
+                            on:change={() => toggleResource(resource.id, !visibleResources[resource.id])}
+                          />
+                          <ResourceNode 
+                            resourceType={resource.iconKey || resource.id}
+                            outsideColor={resource.outsideColor}
+                            iconAtlas={iconAtlas}
+                            size="small"
+                          />
+                          <span class="resource-name">
+                            {resource.name}
+                            {#if resource.markers && resource.markers.length}
+                              <span class="resource-count">({resource.markers.length})</span>
+                            {/if}
+                          </span>
+                        </label>
+                      {:else}
+                        <label class="resource-label">
+                          <input 
+                            type="checkbox" 
+                            checked={visibleResources[resource.id] || false}
+                            on:change={() => toggleResource(resource.id, !visibleResources[resource.id])}
+                          />
+                          <ResourceNode 
+                            resourceType={resource.iconKey || resource.id}
+                            outsideColor={resource.outsideColor}
+                            iconAtlas={iconAtlas}
+                            size="small"
+                          />
+                          <span class="resource-name">
+                            {resource.name}
+                            {#if resource.markers && resource.markers.length}
+                              <span class="resource-count">({resource.markers.length})</span>
+                            {/if}
+                          </span>
+                        </label>
                       {/if}
-                    </div>
-                    <span>
-                      {resourceType.name}
-                      {#if resourceType.markers && resourceType.markers.length}
-                        ({resourceType.markers.length})
-                      {/if}
-                    </span>
-                  </label>
+                    {/each}
+                  {:else}
+                    <label class="resource-label">
+                      <input 
+                        type="checkbox" 
+                        checked={visibleResources[resource.id] || false}
+                        on:change={() => toggleResource(resource.id, !visibleResources[resource.id])}
+                      />
+                      <ResourceNode 
+                        resourceType={resource.iconKey || resource.id}
+                        outsideColor={resource.outsideColor}
+                        iconAtlas={iconAtlas}
+                        size="small"
+                      />
+                      <span class="resource-name">
+                        {resource.name}
+                        {#if resource.markers && resource.markers.length}
+                          <span class="resource-count">({resource.markers.length})</span>
+                        {/if}
+                      </span>
+                    </label>
+                  {/if}
                 </div>
               {/if}
             {/each}
@@ -297,15 +317,19 @@
     align-items: center;
   }
   
-  .atlas-icon {
-    margin-right: 10px;
-    position: relative;
-  }
-  
   .resource-label {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 8px;
     cursor: pointer;
+  }
+  
+  .resource-name {
+    font-size: 14px;
+  }
+  
+  .resource-count {
+    font-size: 12px;
+    color: #666;
   }
 </style>

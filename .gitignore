@@ -7,10 +7,18 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
 dist
 dist-ssr
 *.local
+
+# Generated files
+src/data/resources.js
+public/assets/icon-atlas.png
+public/assets/icon-atlas.json
+**/backup*
+**/*.backup.*
 
 # Editor directories and files
 .vscode/*

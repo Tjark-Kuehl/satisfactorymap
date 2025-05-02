@@ -6,9 +6,12 @@
   import CoordinatesDisplay from './components/CoordinatesDisplay.svelte';
   import ToggleAllNodes from './components/ToggleAllNodes.svelte';
   import SidebarToggle from './components/SidebarToggle.svelte';
+  import { loadIconAtlas } from './lib/iconUtils.js';
+  
+  // Import resources directly as a JS module
+  import { resourceData, getDefaultVisibleResources } from './data/resources.js';
   
   // Global state
-  let resourceData = null;
   let iconAtlas = null;
   let markerClusters = {};
   let map = null;
@@ -17,7 +20,7 @@
   let debugInfo = [];
   let debugVisible = false;
   let sidebarCollapsed = false;
-  let visibleResources = {};
+  let visibleResources = getDefaultVisibleResources();
   
   // References for components
   let mapComponent;
@@ -25,64 +28,82 @@
   
   onMount(async () => {
     try {
-      // Load the icon atlas first
-      const atlasResponse = await fetch(import.meta.env.BASE_URL + 'assets/icon-atlas.json');
-      if (!atlasResponse.ok) {
-        throw new Error(`Failed to load icon atlas: ${atlasResponse.status}`);
+      // Load the icon atlas once and pass it to all components
+      iconAtlas = await loadIconAtlas(import.meta.env.BASE_URL);
+      
+      if (!iconAtlas) {
+        throw new Error('Failed to load icon atlas');
       }
-      iconAtlas = await atlasResponse.json();
       
       // Preload the atlas image
       await preloadAtlasImage();
       
-      // Then load the resource data
-      const resourceResponse = await fetch(import.meta.env.BASE_URL + 'data/resources.json');
-      if (!resourceResponse.ok) {
-        throw new Error(`Failed to load resources: ${resourceResponse.status}`);
-      }
-      resourceData = await resourceResponse.json();
+      // Initialize all resources as visible by default
+      initializeResourceVisibility();
       
       // Only hide loading spinner after markers are processed
       setTimeout(() => {
         isLoading = false;
-      }, 100);
+      }, 500);
     } catch (error) {
-      console.error('Error initializing application:', error);
-      appendDebugInfo(`Failed to initialize: ${error.message}`, 'red');
+      console.error('Error initializing map:', error);
+      errorMessage = `Failed to load map data: ${error.message}`;
+      isLoading = false;
     }
   });
   
   /**
-   * Preload the atlas image to ensure icons appear immediately
+   * Preload the atlas image to ensure it's cached
    */
-  function preloadAtlasImage() {
-    return new Promise((resolve) => {
+  async function preloadAtlasImage() {
+    return new Promise((resolve, reject) => {
+      if (!iconAtlas) {
+        reject(new Error('Icon atlas not loaded'));
+        return;
+      }
+      
       const img = new Image();
       img.onload = () => resolve();
-      img.onerror = () => {
-        console.error('Error preloading atlas image');
-        resolve();
-      };
+      img.onerror = () => reject(new Error('Failed to preload atlas image'));
       img.src = import.meta.env.BASE_URL + 'assets/icon-atlas.png';
     });
   }
   
-  /**
-   * Toggle visibility of resource markers
-   */
-  function toggleResourceVisibility(resourceId, visible) {
-    if (mapComponent) {
-      mapComponent.toggleResourceVisibility(resourceId, visible);
-    }
+  // Initialize visibility for all resources
+  function initializeResourceVisibility() {
+    // Using the helper function from the resources module
+    visibleResources = getDefaultVisibleResources();
   }
   
-  /**
-   * Toggle all nodes visibility
-   */
+  // Toggle visibility of all resource nodes
   function toggleAllNodes() {
-    allNodesVisible = !allNodesVisible;
+    const isAllVisible = Object.values(visibleResources).every(v => v);
+    
+    // Set all resources to the opposite of current state
+    resourceData.categories.forEach(category => {
+      category.subcategories.forEach(subcategory => {
+        subcategory.resources.forEach(resource => {
+          visibleResources[resource.id] = !isAllVisible;
+        });
+      });
+    });
+    
     if (mapComponent) {
-      mapComponent.toggleAllNodes(allNodesVisible);
+      mapComponent.updateAllMarkers(visibleResources);
+    }
+    
+    return !isAllVisible;
+  }
+  
+  // Toggle visibility of a specific resource type
+  function toggleResourceVisibility(resourceId, visible) {
+    if (visibleResources[resourceId] !== visible) {
+      visibleResources[resourceId] = visible;
+      visibleResources = {...visibleResources}; // Trigger reactivity
+      
+      if (mapComponent) {
+        mapComponent.updateResourceMarkers(resourceId, visible);
+      }
     }
   }
   
@@ -110,32 +131,40 @@
   function handleToggleResource({ detail }) {
     toggleResourceVisibility(detail.resourceId, detail.visible);
   }
+  
+  function handleMapReady() {
+    // Add your map ready logic here
+  }
+  
+  function handleCoordsUpdate() {
+    // Add your coords update logic here
+  }
 </script>
 
 <svelte:head>
   <title>Satisfactory Interactive Map</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </svelte:head>
 
 <div id="app" class:sidebar-collapsed={sidebarCollapsed}>
   <Sidebar 
     bind:this={sidebarComponent}
     {resourceData}
-    {iconAtlas}
     {visibleResources}
+    {iconAtlas}
     toggleResourceVisibility={handleToggleResource}
     collapsed={sidebarCollapsed}
     on:toggle={toggleSidebar}
   />
   
   <div id="map-container">
-    {#if resourceData && iconAtlas}
+    {#if iconAtlas}
       <Map 
         {resourceData} 
-        {iconAtlas} 
-        bind:this={mapComponent} 
-        on:appendDebug={({ detail }) => appendDebugInfo(detail.text, detail.color)} 
+        {visibleResources}
+        {iconAtlas}
+        on:mapready={handleMapReady}
+        on:coordsupdate={handleCoordsUpdate}
+        bind:this={mapComponent}
       />
     {/if}
     

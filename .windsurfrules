@@ -1,0 +1,38 @@
+# Satisfactory Interactive Map - Key Technical Knowledge
+
+## Global
+- The map is built using Svelte and Vite
+- The map is deployed to GitHub Pages
+- Create a CHANGELOG.md file and document changes in it
+- Read the README.md file for more information
+
+## Map Data Structure
+- The map uses a JSON-to-JS optimized structure stored in `src/data/resources.js`
+- Resources are organized in categories → subcategories → resources
+- Each resource has an ID, name, markers, and styling properties
+
+## Icon System
+- Icons are loaded from an atlas image at `public/assets/icon-atlas.png`
+- Icons should be combined with colored circles for better visibility
+- Original zoom settings for the map are: minZoom: -10, maxZoom: -4, initialZoom: -8
+
+## Map Features
+- Leaflet.js with Simple CRS for the Satisfactory coordinate system
+- Markers should show detailed popups when clicked including the name, purity, coordinates, and id of the node
+- Color circles around icons improve visibility
+- Dont use MarkerCluster plugin
+
+## CSS and Styling
+- Resource markers use `:global()` CSS for Leaflet compatibility
+- Colors for nodes follow Satisfactory's color scheme (orange/dark)
+- Marker styling includes `border-color` for outline
+
+## Build and Deploy
+- GitHub Actions handles CI/CD with special permissions for GitHub Pages
+- Base URL handling needed for proper asset loading on GitHub Pages
+- Vite bundling with `import.meta.env.BASE_URL` used to reference assets
+
+## Sidebar
+- Sidebar shows structured resource nodes with counts and icons also loaded from the icon-atlas
+- Uses reactive filtering to handle search and toggle states
+- Each resource has a count of nodes displayed next to the name

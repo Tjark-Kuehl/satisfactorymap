@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/build.js",
     "preview": "vite preview",
     "start": "vite",
-    "generate-atlas": "node scripts/atlas-generator.js"
+    "manage-assets": "node scripts/asset-manager.js",
+    "process-resources": "node scripts/process-resources.js"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.4.2",
@@ -16,6 +17,7 @@
     "vite": "^4.4.5"
   },
   "dependencies": {
+    "canvas": "^3.1.0",
     "leaflet": "^1.9.4"
   }
 }

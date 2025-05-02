@@ -1,0 +1,36 @@
+/* Styles for map resource markers */
+.resource-marker {
+  background-color: transparent !important;
+}
+
+.resource-node-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.resource-marker-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 3px solid;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.9);
+  box-sizing: border-box;
+}
+
+.icon-container {
+  width: 64px;
+  height: 64px;
+  background-repeat: no-repeat;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  background-size: 320px 320px; /* 5 columns × 64px = 320px */
+  transform: translate(-50%, -50%) scale(0.4); /* Center and decrease scale */
+}
