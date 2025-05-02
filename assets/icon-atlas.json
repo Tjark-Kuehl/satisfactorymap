@@ -1,104 +1,108 @@
 {
-  "atlasUrl": "/public/assets/icon-atlas.png",
+  "atlasUrl": "/assets/icon-atlas.png",
   "iconSize": 64,
   "columns": 5,
   "rows": 5,
   "iconPositions": {
-    "harddrive256": {
+    "bacon_agaric_256": {
       "x": 0,
       "y": 0
     },
-    "bauxite256": {
+    "bauxite_256": {
       "x": 1,
       "y": 0
     },
-    "berry256": {
+    "beryl_nut_256": {
       "x": 2,
       "y": 0
     },
-    "cateriumore256": {
+    "caterium_256": {
       "x": 3,
       "y": 0
     },
-    "coalore256": {
+    "coal_256": {
       "x": 4,
       "y": 0
     },
-    "nitricacid256": {
+    "copper_256": {
       "x": 0,
       "y": 1
     },
-    "quartzcrystal256": {
+    "geyser_256": {
       "x": 1,
       "y": 1
     },
-    "uraniumore256": {
+    "hard_drive_256": {
       "x": 2,
       "y": 1
     },
-    "coppernew256": {
+    "iron_256": {
       "x": 3,
       "y": 1
     },
-    "ironnew256": {
+    "limestone_256": {
       "x": 4,
       "y": 1
     },
-    "liquidoilpipe256": {
+    "mercer_sphere_256": {
       "x": 0,
       "y": 2
     },
-    "liquidwaterpipe256": {
+    "nitrogen_gas_256": {
       "x": 1,
       "y": 2
     },
-    "mushroom256": {
+    "oil_256": {
       "x": 2,
       "y": 2
     },
-    "nut256new": {
+    "paleberry_256": {
       "x": 3,
       "y": 2
     },
-    "powersluggreen256": {
+    "quartz_256": {
       "x": 4,
       "y": 2
     },
-    "powerslugpurple256": {
+    "sam_ore_256": {
       "x": 0,
       "y": 3
     },
-    "powerslugyellow256": {
+    "slug_green_256": {
       "x": 1,
       "y": 3
     },
-    "samore256": {
+    "slug_purple_256": {
       "x": 2,
       "y": 3
     },
-    "stone256": {
+    "slug_yellow_256": {
       "x": 3,
       "y": 3
     },
-    "sulfur256": {
+    "somers_loop_256": {
       "x": 4,
       "y": 3
     },
-    "mercer256": {
+    "sulfur_256": {
       "x": 0,
       "y": 4
     },
-    "somersloom256": {
+    "uranium_256": {
       "x": 1,
+      "y": 4
+    },
+    "water_256": {
+      "x": 2,
       "y": 4
     }
   },
   "resourceMapping": {
-    "harddrive": {
+    "bacon_agaric": {
       "x": 0,
       "y": 0
     },
-    "hard drive": {
+    "bacon agaric": {
       "x": 0,
       "y": 0
     },
@@ -106,19 +110,11 @@
       "x": 1,
       "y": 0
     },
-    "berry": {
+    "beryl_nut": {
       "x": 2,
       "y": 0
     },
-    "sporeflower": {
-      "x": 2,
-      "y": 0
-    },
-    "paleberry": {
-      "x": 2,
-      "y": 0
-    },
-    "spore flowers": {
+    "beryl nut": {
       "x": 2,
       "y": 0
     },
@@ -130,152 +126,176 @@
       "x": 4,
       "y": 0
     },
-    "nitrogengas": {
-      "x": 0,
-      "y": 1
-    },
-    "gaspillar": {
-      "x": 0,
-      "y": 1
-    },
-    "gas pillars": {
-      "x": 0,
-      "y": 1
-    },
-    "quartz": {
-      "x": 1,
-      "y": 1
-    },
-    "uranium": {
-      "x": 2,
-      "y": 1
-    },
     "copper": {
-      "x": 3,
+      "x": 0,
       "y": 1
     },
     "copper ore (impure)": {
-      "x": 3,
+      "x": 0,
       "y": 1
     },
     "copper ore (normal)": {
-      "x": 3,
+      "x": 0,
       "y": 1
     },
     "copper ore (pure)": {
-      "x": 3,
+      "x": 0,
+      "y": 1
+    },
+    "geyser": {
+      "x": 1,
+      "y": 1
+    },
+    "geyser (unknown)": {
+      "x": 1,
+      "y": 1
+    },
+    "geyser (impure)": {
+      "x": 1,
+      "y": 1
+    },
+    "geyser (normal)": {
+      "x": 1,
+      "y": 1
+    },
+    "geyser (pure)": {
+      "x": 1,
+      "y": 1
+    },
+    "hard_drive": {
+      "x": 2,
+      "y": 1
+    },
+    "hard drive": {
+      "x": 2,
       "y": 1
     },
     "iron": {
-      "x": 4,
+      "x": 3,
       "y": 1
     },
     "iron ore (impure)": {
-      "x": 4,
+      "x": 3,
       "y": 1
     },
     "iron ore (normal)": {
-      "x": 4,
+      "x": 3,
       "y": 1
     },
     "iron ore (pure)": {
+      "x": 3,
+      "y": 1
+    },
+    "limestone": {
       "x": 4,
       "y": 1
     },
-    "oil": {
-      "x": 0,
-      "y": 2
-    },
-    "crude oil (impure)": {
-      "x": 0,
-      "y": 2
-    },
-    "crude oil (normal)": {
-      "x": 0,
-      "y": 2
-    },
-    "crude oil (pure)": {
-      "x": 0,
-      "y": 2
-    },
-    "water": {
-      "x": 1,
-      "y": 2
-    },
-    "mushroom": {
-      "x": 2,
-      "y": 2
-    },
-    "bacon agaric": {
-      "x": 2,
-      "y": 2
-    },
-    "beryl": {
-      "x": 3,
-      "y": 2
-    },
-    "beryl nut": {
-      "x": 3,
-      "y": 2
-    },
-    "green": {
-      "x": 4,
-      "y": 2
-    },
-    "blue power slug": {
-      "x": 4,
-      "y": 2
-    },
-    "purple": {
-      "x": 0,
-      "y": 3
-    },
-    "purple power slug": {
-      "x": 0,
-      "y": 3
-    },
-    "yellow": {
-      "x": 1,
-      "y": 3
-    },
-    "yellow power slug": {
-      "x": 1,
-      "y": 3
-    },
-    "sam": {
-      "x": 2,
-      "y": 3
-    },
-    "limestone": {
-      "x": 3,
-      "y": 3
-    },
     "limestone (impure)": {
-      "x": 3,
-      "y": 3
+      "x": 4,
+      "y": 1
     },
     "limestone (normal)": {
-      "x": 3,
-      "y": 3
+      "x": 4,
+      "y": 1
     },
     "limestone (pure)": {
-      "x": 3,
-      "y": 3
-    },
-    "sulfur": {
       "x": 4,
-      "y": 3
+      "y": 1
     },
-    "mercer": {
+    "mercer_sphere": {
       "x": 0,
-      "y": 4
+      "y": 2
     },
     "mercer sphere": {
       "x": 0,
+      "y": 2
+    },
+    "nitrogen_gas": {
+      "x": 1,
+      "y": 2
+    },
+    "gaspillar": {
+      "x": 1,
+      "y": 2
+    },
+    "gas pillars": {
+      "x": 1,
+      "y": 2
+    },
+    "oil": {
+      "x": 2,
+      "y": 2
+    },
+    "crude oil (impure)": {
+      "x": 2,
+      "y": 2
+    },
+    "crude oil (normal)": {
+      "x": 2,
+      "y": 2
+    },
+    "crude oil (pure)": {
+      "x": 2,
+      "y": 2
+    },
+    "paleberry": {
+      "x": 3,
+      "y": 2
+    },
+    "sporeflower": {
+      "x": 3,
+      "y": 2
+    },
+    "spore flowers": {
+      "x": 3,
+      "y": 2
+    },
+    "quartz": {
+      "x": 4,
+      "y": 2
+    },
+    "sam_ore": {
+      "x": 0,
+      "y": 3
+    },
+    "slug_green": {
+      "x": 1,
+      "y": 3
+    },
+    "blue power slug": {
+      "x": 1,
+      "y": 3
+    },
+    "slug_purple": {
+      "x": 2,
+      "y": 3
+    },
+    "purple power slug": {
+      "x": 2,
+      "y": 3
+    },
+    "slug_yellow": {
+      "x": 3,
+      "y": 3
+    },
+    "yellow power slug": {
+      "x": 3,
+      "y": 3
+    },
+    "somers_loop": {
+      "x": 4,
+      "y": 3
+    },
+    "sulfur": {
+      "x": 0,
       "y": 4
     },
-    "somersloop": {
+    "uranium": {
       "x": 1,
+      "y": 4
+    },
+    "water": {
+      "x": 2,
       "y": 4
     }
   }
