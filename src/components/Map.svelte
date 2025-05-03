@@ -5,9 +5,10 @@
   import { findIconPosition, getIconBackgroundPosition } from '../lib/iconUtils';
   import '../styles/resourceNodeMapStyles.css';
   
-  export let resourceData;
-  export let visibleResources;
+  // Props
+  export let visibleResources = {};
   export let iconAtlas;
+  export let resourceData;
   
   const dispatch = createEventDispatcher();
   const baseUrl = import.meta.env.BASE_URL;
@@ -16,85 +17,81 @@
   let map;
   let markerClusters = {};
   
-  onMount(async () => {
-    if (!mapElement) return;
-    
-    // Initialize the map when the component mounts
-    initMap();
-    
-    return () => {
-      // Clean up on component destruction
-      if (map) {
-        map.remove();
-      }
-    };
+  onMount(() => {
+    initializeMap();
   });
   
-  // Set up the map
-  function initMap() {
+  function initializeMap() {
     map = L.map(mapElement, {
       crs: L.CRS.Simple,
       minZoom: -10,
       maxZoom: -4,
-      zoom: -8,
-      zoomControl: false, // We'll add our own zoom control
+      zoomControl: false,
       attributionControl: false,
-      doubleClickZoom: false
+      zoomDelta: 0.5,
+      zoomSnap: 0.5,
+      keyboard: true,
+      boxZoom: true,
+      doubleClickZoom: true,
+      scrollWheelZoom: true,
+      touchZoom: true,
+      dragging: true
     });
     
-    // Add custom zoom control at top-left
     L.control.zoom({
       position: 'topleft'
     }).addTo(map);
 
-    // Set map bounds (Satisfactory map is 400k x 400k)
     const mapSize = 400000;
-    const bounds = [[-mapSize, -mapSize], [mapSize, mapSize]];
+    const bounds = [[-mapSize, -mapSize], [mapSize, mapSize]]; 
     map.setMaxBounds(bounds);
     
-    // Set the initial view to center of map
     map.setView([0, 0], -8);
     
-    // Add the map image overlay
-    const imageUrl = `${baseUrl}assets/Map.webp`;
-    L.imageOverlay(imageUrl, bounds).addTo(map);
+    map.eachLayer(function(layer) {
+      if (layer._url || layer._image) {
+        map.removeLayer(layer);
+      }
+    });
+
+    const imageUrl = baseUrl + 'assets/Map-HQ.avif';
     
-    // Initialize marker clusters for each resource type
+    // Create the image overlay with exact bounds to avoid white borders
+    const baseLayer = L.imageOverlay(imageUrl, bounds, {
+      interactive: true,
+      opacity: 1.0,
+      crossOrigin: true
+    }).addTo(map);
+    
+    markerClusters = {}; 
     initializeMarkerClusters();
     
-    // Load resource markers
     loadResourceMarkers();
     
-    // Set up coordinates update on mouse move
+    console.log('Marker clusters initialized:', Object.keys(markerClusters).length);
+    
+    console.log('Initial visibleResources state:', Object.entries(visibleResources).filter(([_, v]) => v).length, 'visible resources');
+    
+    applyInitialVisibility();
+    
     map.on('mousemove', updateCoordinates);
     
-    // Set global map reference
     window.gameMap = map;
     
-    // Dispatch event that map is ready
-    dispatch('mapready', { map });
+    dispatch('mapReady', { map });
   }
   
-  // Initialize marker clusters for different resource types
   function initializeMarkerClusters() {
-    markerClusters = {};
-    
-    // Create layer groups for each resource type
     resourceData.categories.forEach(category => {
       category.subcategories.forEach(subcategory => {
         subcategory.resources.forEach(resource => {
-          markerClusters[resource.id] = L.layerGroup();
-          
-          // Check if this resource should be visible initially
-          if (visibleResources[resource.id]) {
-            markerClusters[resource.id].addTo(map);
-          }
+          const cluster = L.layerGroup();
+          markerClusters[resource.id] = cluster;
         });
       });
     });
   }
   
-  // Load all resource markers
   function loadResourceMarkers() {
     resourceData.categories.forEach(category => {
       category.subcategories.forEach(subcategory => {
@@ -107,16 +104,25 @@
     });
   }
   
-  // Add markers for a specific resource type
+  function applyInitialVisibility() {
+    Object.keys(markerClusters).forEach(resourceId => {
+      const isVisible = visibleResources[resourceId];
+      const cluster = markerClusters[resourceId];
+      
+      if (isVisible && cluster) {
+        console.log(`Initially adding ${resourceId} to map (visible=true)`);
+        map.addLayer(cluster);
+      }
+    });
+  }
+  
   function addResourceMarkers(resource) {
     const resourceId = resource.id;
     const cluster = markerClusters[resourceId];
     
     if (!cluster) return;
     
-    // Add each marker to its cluster
     resource.markers.forEach(markerData => {
-      // Create HTML for the marker using the resource node styling
       const iconHTML = `
         <div class="resource-node-wrapper">
           <div class="resource-marker-inner" style="border-color: ${resource.outsideColor};">
@@ -125,7 +131,6 @@
         </div>
       `;
       
-      // Create a marker with a div icon
       const iconOptions = {
         iconSize: [32, 32],
         iconAnchor: [16, 16],
@@ -133,11 +138,10 @@
         html: iconHTML
       };
       
-      const marker = L.marker([markerData.y, markerData.x], {
+      const marker = L.marker([-markerData.y, markerData.x], {
         icon: L.divIcon(iconOptions)
       });
       
-      // Add popup with detailed resource info
       const popupContent = `
         <strong>${resource.name}</strong><br>
         ${markerData.purity ? `Purity: ${markerData.purity.charAt(0).toUpperCase() + markerData.purity.slice(1)}<br>` : ''}
@@ -146,53 +150,55 @@
       `;
       marker.bindPopup(popupContent);
       
-      // Add tooltip with basic resource info
       marker.bindTooltip(`${resource.name}${markerData.purity ? ` (${markerData.purity.charAt(0).toUpperCase() + markerData.purity.slice(1)})` : ''}`, {
         permanent: false,
         direction: 'top'
       });
       
-      // Add marker to cluster
       marker.resourceId = resourceId;
       marker.markerData = markerData;
       cluster.addLayer(marker);
     });
   }
   
-  // Update all marker visibility
-  export function updateAllMarkers(visibleResources) {
-    Object.keys(markerClusters).forEach(resourceId => {
-      const isVisible = visibleResources[resourceId];
-      updateResourceMarkers(resourceId, isVisible);
-    });
-  }
-  
-  // Update visibility for specific resource
-  export function updateResourceMarkers(resourceId, visible) {
-    const cluster = markerClusters[resourceId];
-    if (cluster) {
-      if (visible && !map.hasLayer(cluster)) {
-        map.addLayer(cluster);
-      } else if (!visible && map.hasLayer(cluster)) {
-        map.removeLayer(cluster);
-      }
-    }
-  }
-  
-  // Update coordinates on mouse move
   function updateCoordinates(e) {
     try {
-      // Calculate map coordinates
       const x = Math.floor(e.latlng.lng);
       const y = Math.floor(e.latlng.lat);
       
-      // Update coordinates in global event, Svelte will handle it
       const coordsDisplay = document.getElementById('coords');
       if (coordsDisplay) {
         coordsDisplay.textContent = `X: ${x} | Y: ${y}`;
       }
     } catch (error) {
       console.error('Error updating coordinates:', error);
+    }
+  }
+  
+  export function updateAllMarkers(visibleResources) {
+    console.log('updateAllMarkers called with', Object.entries(visibleResources).filter(([_, v]) => v).length, 'visible resources');
+    
+    Object.keys(markerClusters).forEach(resourceId => {
+      const isVisible = visibleResources[resourceId];
+      console.log(`Resource ${resourceId}: visibility=${isVisible}`);
+      updateResourceMarkers(resourceId, isVisible);
+    });
+  }
+  
+  export function updateResourceMarkers(resourceId, visible) {
+    const cluster = markerClusters[resourceId];
+    if (cluster) {
+      if (visible && !map.hasLayer(cluster)) {
+        map.addLayer(cluster);
+        console.log(`Added layer for ${resourceId}`);
+      } else if (!visible && map.hasLayer(cluster)) {
+        map.removeLayer(cluster);
+        console.log(`Removed layer for ${resourceId}`);
+      } else {
+        console.log(`No change needed for ${resourceId} (already in correct state: ${visible ? 'visible' : 'hidden'})`);
+      }
+    } else {
+      console.warn(`No cluster found for ${resourceId}`);
     }
   }
 </script>

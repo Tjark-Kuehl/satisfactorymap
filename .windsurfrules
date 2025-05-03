@@ -14,11 +14,10 @@
 ## Icon System
 - Icons are loaded from an atlas image at `public/assets/icon-atlas.png`
 - Icons should be combined with colored circles for better visibility
-- Original zoom settings for the map are: minZoom: -10, maxZoom: -4, initialZoom: -8
 
 ## Map Features
 - Leaflet.js with Simple CRS for the Satisfactory coordinate system
-- Markers should show detailed popups when clicked including the name, purity, coordinates, and id of the node
+- Markers should show detailed popups when clicked including the name, purity, coordinates, altitude, and id of the node
 - Color circles around icons improve visibility
 - Dont use MarkerCluster plugin
 

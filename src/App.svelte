@@ -20,7 +20,7 @@
   let debugInfo = [];
   let debugVisible = false;
   let sidebarCollapsed = false;
-  let visibleResources = getDefaultVisibleResources();
+  let visibleResources = {};
   
   // References for components
   let mapComponent;
@@ -38,8 +38,16 @@
       // Preload the atlas image
       await preloadAtlasImage();
       
-      // Initialize all resources as visible by default
+      // Start with all resources visible as the default state
       initializeResourceVisibility();
+      
+      // Check if we have a filter URL parameter and apply it
+      const url = new URL(window.location);
+      const filterParam = url.searchParams.get('f');
+      
+      if (filterParam) {
+        loadFiltersFromURL();
+      }
       
       // Only hide loading spinner after markers are processed
       setTimeout(() => {
@@ -69,10 +77,38 @@
     });
   }
   
-  // Initialize visibility for all resources
+  // Initialize all resources as hidden by default
+  function initializeResourceVisibilityAsHidden() {
+    visibleResources = {};
+    resourceData.categories.forEach(category => {
+      category.subcategories.forEach(subcategory => {
+        subcategory.resources.forEach(resource => {
+          visibleResources[resource.id] = false;
+        });
+      });
+    });
+    // Ensure reactivity
+    visibleResources = {...visibleResources};
+  }
+  
+  // Initialize visibility for all resources as visible
   function initializeResourceVisibility() {
-    // Using the helper function from the resources module
-    visibleResources = getDefaultVisibleResources();
+    // Create object with all resources set to visible
+    const allVisible = {};
+    
+    // Set every resource to visible
+    resourceData.categories.forEach(category => {
+      category.subcategories.forEach(subcategory => {
+        subcategory.resources.forEach(resource => {
+          allVisible[resource.id] = true;
+        });
+      });
+    });
+    
+    // Update the state to trigger reactivity
+    visibleResources = allVisible;
+    
+    console.log('Initialized all resources as visible:', Object.keys(visibleResources).length);
   }
   
   // Toggle visibility of all resource nodes
@@ -88,22 +124,98 @@
       });
     });
     
+    // Update the visible resources state to trigger reactivity
+    visibleResources = {...visibleResources};
+    
     if (mapComponent) {
       mapComponent.updateAllMarkers(visibleResources);
     }
+    
+    // Save new filter state to URL
+    saveFiltersToURL();
     
     return !isAllVisible;
   }
   
   // Toggle visibility of a specific resource type
   function toggleResourceVisibility(resourceId, visible) {
-    if (visibleResources[resourceId] !== visible) {
-      visibleResources[resourceId] = visible;
-      visibleResources = {...visibleResources}; // Trigger reactivity
+    // Always set the resource to the requested visibility state
+    visibleResources[resourceId] = visible;
+    visibleResources = {...visibleResources}; // Trigger reactivity
+    
+    if (mapComponent) {
+      mapComponent.updateResourceMarkers(resourceId, visible);
+    }
+    
+    // Save filter state to URL
+    saveFiltersToURL();
+  }
+  
+  /**
+   * Save current filter state to URL in a compact format
+   * We use a simple format like "?f=res1,res2,res3" where each res is a visible resource ID
+   */
+  function saveFiltersToURL() {
+    // Create an array of visible resource IDs
+    const visibleIds = Object.entries(visibleResources)
+      .filter(([id, visible]) => visible)
+      .map(([id]) => id);
       
-      if (mapComponent) {
-        mapComponent.updateResourceMarkers(resourceId, visible);
+    // Create URL params
+    const url = new URL(window.location);
+    
+    if (visibleIds.length > 0) {
+      // Only include visible resources in URL to keep it compact
+      url.searchParams.set('f', visibleIds.join(','));
+    } else {
+      // If nothing is visible, use a special indicator
+      url.searchParams.set('f', 'none');
+    }
+    
+    // Update URL without reloading page
+    window.history.replaceState({}, '', url);
+  }
+  
+  /**
+   * Load filter state from URL
+   */
+  function loadFiltersFromURL() {
+    try {
+      const url = new URL(window.location);
+      const filterParam = url.searchParams.get('f');
+      
+      if (filterParam) {
+        // Start by setting all resources to hidden
+        resourceData.categories.forEach(category => {
+          category.subcategories.forEach(subcategory => {
+            subcategory.resources.forEach(resource => {
+              visibleResources[resource.id] = false;
+            });
+          });
+        });
+        
+        // If not 'none', make specified resources visible
+        if (filterParam !== 'none') {
+          const visibleIds = filterParam.split(',');
+          
+          // Only make valid resource IDs visible
+          visibleIds.forEach(id => {
+            if (id && id.trim() !== '') {
+              visibleResources[id] = true;
+            }
+          });
+        }
+        
+        // Update the global state to trigger reactivity
+        visibleResources = {...visibleResources};
+        
+        console.log('Loaded filter state from URL:', filterParam);
+        console.log('Visible resources:', Object.entries(visibleResources).filter(([_, v]) => v).map(([k]) => k));
       }
+    } catch (error) {
+      console.error('Error loading filters from URL:', error);
+      // Fallback to all resources visible
+      initializeResourceVisibility();
     }
   }
   
@@ -132,8 +244,13 @@
     toggleResourceVisibility(detail.resourceId, detail.visible);
   }
   
-  function handleMapReady() {
-    // Add your map ready logic here
+  function handleMapReady({ detail }) {
+    // When the map is ready, update all markers based on the current filter state
+    // This ensures URL filter parameters are applied immediately
+    if (mapComponent) {
+      console.log('Map component ready, applying filters');
+      mapComponent.updateAllMarkers(visibleResources);
+    }
   }
   
   function handleCoordsUpdate() {
@@ -151,7 +268,7 @@
     {resourceData}
     {visibleResources}
     {iconAtlas}
-    toggleResourceVisibility={handleToggleResource}
+    toggleResourceVisibility={toggleResourceVisibility}
     collapsed={sidebarCollapsed}
     on:toggle={toggleSidebar}
   />
@@ -162,7 +279,7 @@
         {resourceData} 
         {visibleResources}
         {iconAtlas}
-        on:mapready={handleMapReady}
+        on:mapReady={handleMapReady}
         on:coordsupdate={handleCoordsUpdate}
         bind:this={mapComponent}
       />

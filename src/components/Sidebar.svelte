@@ -23,6 +23,7 @@
   
   // Function to toggle resource visibility
   function toggleResource(resourceId, checked) {
+    // Directly call the passed function with the resource ID and checked state
     toggleResourceVisibility(resourceId, checked);
   }
   
@@ -96,18 +97,21 @@
   
   <div class="tab-content" class:active={activeTab === 'resources'}>
     {#if resourceData && resourceData.categories}
-      {#each resourceData.categories.filter(c => c && c.name && !c.name.toLowerCase().includes('unknown')) as category}
-        <button 
-          class="category-header" 
-          on:click={() => toggleCategory(category.name)}
-          on:keydown={(e) => e.key === 'Enter' && toggleCategory(category.name)}
-          aria-expanded={!collapsedCategories[category.name]}
-        >
-          {category.name}
-        </button>
+      {#each resourceData.categories.filter(c => c && c.name && !c.name.toLowerCase().includes('unknown')) as category, categoryIndex}
         
-        {#each category.subcategories.filter(sc => sc && sc.name && !sc.name.toLowerCase().includes('unknown')) as subcategory}
-          <div class="subcategory" class:collapsed={collapsedCategories[category.name]}>
+        {#each category.subcategories
+          .filter(sc => sc && sc.name && !sc.name.toLowerCase().includes('unknown'))
+          // Use Set to filter unique subcategory names to avoid duplicates
+          .filter((sc, i, arr) => i === arr.findIndex(t => t.name === sc.name))
+          // Only show subcategories that have at least one resource with markers
+          .filter(subcategory => 
+            subcategory.resources && 
+            subcategory.resources.some(resource => 
+              resource && resource.markers && resource.markers.length > 0
+            )
+          )
+          as subcategory}
+          <div class="subcategory">
             <button 
               class="subcategory-header" 
               on:click={() => toggleSubCategory(subcategory.name)}
@@ -117,7 +121,11 @@
               {subcategory.name}
             </button>
             
-            {#each subcategory.resources.filter(rt => rt && rt.name && !rt.name.toLowerCase().includes('unknown')) as resource}
+            {#each subcategory.resources
+              .filter(rt => rt && rt.name && !rt.name.toLowerCase().includes('unknown'))
+              // Only show resources that have at least one marker
+              .filter(resource => resource.markers && resource.markers.length > 0)
+              as resource}
               {#if resource.name}
                 <div 
                   class="resource-item" 
@@ -211,7 +219,7 @@
     background-color: #333;
     color: white;
     transition: all 0.3s;
-    overflow-y: auto;
+    overflow-y: hidden;
     z-index: 2;
     position: relative;
   }
@@ -277,25 +285,9 @@
     display: block;
   }
   
-  .category-header {
-    background: #222;
-    padding: 5px 10px;
-    margin: 10px -15px;
-    font-weight: bold;
-    cursor: pointer;
-    border: none;
-    width: 100%;
-    text-align: left;
-    color: white;
-  }
-  
   .subcategory {
     margin-bottom: 15px;
     padding-left: 10px;
-  }
-  
-  .subcategory.collapsed {
-    display: none;
   }
   
   .subcategory-header {
